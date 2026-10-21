@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { WeightEntry } from '../types';
 import { calculateMovingAverages, formatDateShort } from '../utils/calculations';
 
@@ -23,6 +23,16 @@ export const WeightChart: React.FC<ChartProps> = ({
   unit = 'kg',
 }) => {
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [compact, setCompact] = useState(false);
+
+  useEffect(() => {
+    const element = containerRef.current;
+    if (!element) return;
+    const observer = new ResizeObserver(entries => setCompact(entries[0].contentRect.width < 540));
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
 
   // Filter entries based on time range
   const filteredData = useMemo(() => {
@@ -45,9 +55,9 @@ export const WeightChart: React.FC<ChartProps> = ({
   }, [entries, timeRange]);
 
   // Compute SVG dimensions and scale
-  const width = 860;
-  const height = 320;
-  const padding = { top: 30, right: 30, bottom: 40, left: 50 };
+  const width = compact ? 380 : 860;
+  const height = compact ? 290 : 320;
+  const padding = { top: 30, right: compact ? 12 : 30, bottom: 42, left: compact ? 42 : 50 };
 
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;
@@ -58,7 +68,6 @@ export const WeightChart: React.FC<ChartProps> = ({
     }
 
     const allWeights = filteredData.map(d => d.weight);
-    if (goalWeight) allWeights.push(goalWeight);
     if (showMovingAverage) {
       filteredData.forEach(d => {
         if (d.movingAverage) allWeights.push(d.movingAverage);
@@ -69,8 +78,8 @@ export const WeightChart: React.FC<ChartProps> = ({
     const rawMax = Math.max(...allWeights);
 
     // Padding on Y axis
-    const min = Math.floor(rawMin - 1);
-    const max = Math.ceil(rawMax + 1);
+    const min = Math.floor(rawMin - Math.max(0.5, (rawMax-rawMin)*0.18));
+    const max = Math.ceil(rawMax + Math.max(0.5, (rawMax-rawMin)*0.18));
 
     const getX = (index: number) => {
       if (filteredData.length <= 1) return padding.left + chartWidth / 2;
@@ -96,10 +105,10 @@ export const WeightChart: React.FC<ChartProps> = ({
       y: getY(d.movingAverage),
     }));
 
-    const gY = goalWeight ? getY(goalWeight) : 0;
+    const gY = goalWeight >= min && goalWeight <= max ? getY(goalWeight) : -1;
 
     return { minWeight: min, maxWeight: max, points: pts, maPoints: maPts, goalY: gY };
-  }, [filteredData, goalWeight, showMovingAverage, chartWidth, chartHeight]);
+  }, [filteredData, goalWeight, showMovingAverage, chartWidth, chartHeight, padding.left, padding.top]);
 
   // Path generators
   const weightPathD = useMemo(() => {
@@ -141,29 +150,34 @@ export const WeightChart: React.FC<ChartProps> = ({
   // X-axis date ticks (pick 4-6 evenly spaced)
   const xTicks = useMemo(() => {
     if (!points.length) return [];
-    const maxTicks = Math.min(6, points.length);
-    const step = Math.floor(points.length / (maxTicks - 1)) || 1;
-    const list = [];
-    for (let i = 0; i < points.length; i += step) {
-      list.push(points[i]);
-    }
-    if (list[list.length - 1] !== points[points.length - 1]) {
-      list.push(points[points.length - 1]);
-    }
-    return list;
-  }, [points]);
+    const maxTicks = Math.min(compact ? 3 : 6, points.length);
+    if (maxTicks === 1) return [points[0]];
+    return Array.from({ length: maxTicks }, (_, i) => points[Math.round(i*(points.length-1)/(maxTicks-1))]);
+  }, [points, compact]);
 
   const activePoint = hoverIndex !== null && points[hoverIndex] ? points[hoverIndex] : null;
+  const selectNearestPoint = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (!points.length) return;
+    const svgRect = e.currentTarget.getBoundingClientRect();
+    const relX = ((e.clientX - svgRect.left) / svgRect.width) * width;
+    let closestIdx = 0;
+    let minDiff = Infinity;
+    points.forEach((pt, idx) => {
+      const diff = Math.abs(pt.x - relX);
+      if (diff < minDiff) { minDiff = diff; closestIdx = idx; }
+    });
+    setHoverIndex(closestIdx);
+  };
 
   return (
-    <div className="flex flex-col bg-neutral-900 border border-neutral-800 rounded-xl p-5">
+    <div ref={containerRef} className="flex flex-col bg-neutral-900 border border-neutral-800 rounded-xl p-3 sm:p-5 min-w-0 overflow-hidden">
       {/* Chart Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-neutral-800">
         <div>
           <div className="text-xs uppercase tracking-wider text-neutral-400 font-medium">
             Gewichtsverlauf & Trend
           </div>
-          <div className="flex items-center gap-2 mt-0.5 text-xs text-neutral-400">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1 text-[11px] sm:text-xs text-neutral-400">
             <span>Täglicher Messwert</span>
             <span aria-hidden="true">·</span>
             <span className="text-emerald-400">7-Tage-Glättung</span>
@@ -177,7 +191,7 @@ export const WeightChart: React.FC<ChartProps> = ({
         </div>
 
         {/* Controls: Time range & MA toggle */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Moving average toggle */}
           <button
             onClick={onToggleMovingAverage}
@@ -211,26 +225,15 @@ export const WeightChart: React.FC<ChartProps> = ({
       </div>
 
       {/* Main SVG Area */}
-      <div className="relative mt-2 w-full select-none" style={{ minHeight: '300px' }}>
+      <div className="relative mt-2 w-full select-none touch-pan-y">
         <svg
           viewBox={`0 0 ${width} ${height}`}
           className="w-full h-auto overflow-visible"
+          role="img"
+          aria-label="Gewichtsverlauf mit Tageswerten und 7-Tage-Trend"
           onMouseLeave={() => setHoverIndex(null)}
-          onMouseMove={e => {
-            const svgRect = e.currentTarget.getBoundingClientRect();
-            const relX = ((e.clientX - svgRect.left) / svgRect.width) * width;
-            // Find closest point
-            let closestIdx = 0;
-            let minDiff = Infinity;
-            points.forEach((pt, idx) => {
-              const diff = Math.abs(pt.x - relX);
-              if (diff < minDiff) {
-                minDiff = diff;
-                closestIdx = idx;
-              }
-            });
-            setHoverIndex(closestIdx);
-          }}
+          onPointerMove={selectNearestPoint}
+          onPointerDown={selectNearestPoint}
         >
           <defs>
             <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
@@ -321,7 +324,7 @@ export const WeightChart: React.FC<ChartProps> = ({
           )}
 
           {/* Individual Data Points */}
-          {points.length <= 35 && points.map((pt, i) => (
+          {points.length <= (compact ? 22 : 35) && points.map((pt, i) => (
             <circle
               key={i}
               cx={pt.x}
@@ -387,9 +390,9 @@ export const WeightChart: React.FC<ChartProps> = ({
         {/* Floating Tooltip HTML Overlay for crisp responsiveness */}
         {activePoint && hoverIndex !== null && (
           <div
-            className="absolute pointer-events-none z-20 transform -translate-x-1/2 bg-neutral-950/95 border border-neutral-700/80 rounded-lg p-3 text-xs shadow-xl backdrop-blur-xs min-w-[140px]"
+            className="absolute pointer-events-none z-20 transform -translate-x-1/2 bg-neutral-950/95 border border-neutral-700/80 rounded-lg p-2 sm:p-3 text-xs shadow-xl backdrop-blur-xs min-w-[140px]"
             style={{
-              left: `${(activePoint.x / width) * 100}%`,
+              left: `${Math.max(22,Math.min(78,(activePoint.x / width) * 100))}%`,
               top: '12px',
             }}
           >
