@@ -1,0 +1,6 @@
+{
+  "name": "Vektor — Gewichts- & Fortschrittstracker",
+  "description": "Moderner, schlichter Tracker für Gewichtsverlust mit detaillierten Statistiken, gleitendem Durchschnitt und Ziel-Prognosen.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
