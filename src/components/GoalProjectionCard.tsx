@@ -48,7 +48,7 @@ export const GoalProjectionCard: React.FC<GoalProjectionCardProps> = ({
   const overallLossRate = Math.abs(baseProjection.overallWeeklyRateKg);
 
   return (
-    <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-5 flex flex-col justify-between">
+    <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-3 sm:p-5 flex flex-col justify-between min-w-0">
       {/* Header */}
       <div>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-neutral-800">
@@ -65,10 +65,10 @@ export const GoalProjectionCard: React.FC<GoalProjectionCardProps> = ({
           </div>
 
           {/* Segmented Pace Switcher */}
-          <div className="flex items-center p-0.5 bg-neutral-950 rounded-lg border border-neutral-800 text-xs">
+          <div className="grid grid-cols-2 sm:flex w-full sm:w-auto min-w-0 gap-1 p-1 bg-neutral-950 rounded-lg border border-neutral-800 text-xs">
             <button
               onClick={() => setSelectedPaceMode('current')}
-              className={`px-2.5 py-1 rounded-md transition-colors whitespace-nowrap ${
+              className={`min-w-0 px-2 py-2 sm:py-1 rounded-md transition-colors text-center leading-snug ${
                 selectedPaceMode === 'current'
                   ? 'bg-neutral-800 text-white font-medium shadow-xs'
                   : 'text-neutral-400 hover:text-neutral-200'
@@ -78,7 +78,7 @@ export const GoalProjectionCard: React.FC<GoalProjectionCardProps> = ({
             </button>
             <button
               onClick={() => setSelectedPaceMode('overall')}
-              className={`px-2.5 py-1 rounded-md transition-colors whitespace-nowrap ${
+              className={`min-w-0 px-2 py-2 sm:py-1 rounded-md transition-colors text-center leading-snug ${
                 selectedPaceMode === 'overall'
                   ? 'bg-neutral-800 text-white font-medium shadow-xs'
                   : 'text-neutral-400 hover:text-neutral-200'
@@ -88,7 +88,7 @@ export const GoalProjectionCard: React.FC<GoalProjectionCardProps> = ({
             </button>
             <button
               onClick={() => setSelectedPaceMode('recommended')}
-              className={`px-2.5 py-1 rounded-md transition-colors whitespace-nowrap ${
+              className={`min-w-0 px-2 py-2 sm:py-1 rounded-md transition-colors text-center leading-snug ${
                 selectedPaceMode === 'recommended'
                   ? 'bg-neutral-800 text-white font-medium shadow-xs'
                   : 'text-neutral-400 hover:text-neutral-200'
@@ -98,7 +98,7 @@ export const GoalProjectionCard: React.FC<GoalProjectionCardProps> = ({
             </button>
             <button
               onClick={() => setSelectedPaceMode('custom')}
-              className={`px-2.5 py-1 rounded-md transition-colors whitespace-nowrap ${
+              className={`min-w-0 px-2 py-2 sm:py-1 rounded-md transition-colors text-center leading-snug ${
                 selectedPaceMode === 'custom'
                   ? 'bg-neutral-800 text-white font-medium shadow-xs'
                   : 'text-neutral-400 hover:text-neutral-200'
@@ -112,7 +112,7 @@ export const GoalProjectionCard: React.FC<GoalProjectionCardProps> = ({
         {/* Custom Pace Slider (if active) */}
         {selectedPaceMode === 'custom' && (
           <div className="mt-4 p-3 bg-neutral-950/60 border border-neutral-800 rounded-lg">
-            <div className="flex justify-between items-center text-xs mb-1.5">
+            <div className="flex flex-wrap justify-between items-center gap-2 text-xs mb-1.5">
               <span className="text-neutral-300">Gewählte Zielrate:</span>
               <span className="font-mono font-semibold text-emerald-400 tabular-nums">
                 -{customPace.toFixed(2)} kg pro Woche (~{Math.round((customPace * 7700) / 7)} kcal Defizit/Tag)
@@ -127,7 +127,7 @@ export const GoalProjectionCard: React.FC<GoalProjectionCardProps> = ({
               onChange={e => setCustomPace(parseFloat(e.target.value))}
               className="w-full accent-emerald-400 cursor-pointer"
             />
-            <div className="flex justify-between text-[10px] font-mono text-neutral-400 mt-1">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] font-mono text-neutral-400 mt-2">
               <span>0.1 kg (sehr sanft)</span>
               <span>0.5 kg (Standard)</span>
               <span>1.0 kg (ambitioniert)</span>
