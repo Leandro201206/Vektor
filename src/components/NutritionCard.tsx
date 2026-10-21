@@ -27,7 +27,7 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
   }, [currentWeight, profile.height, deficitKcal, activityMultiplier, age]);
 
   return (
-    <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-5 flex flex-col justify-between">
+    <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-3 sm:p-5 flex flex-col justify-between min-w-0">
       {/* Header with Activity and Deficit controls */}
       <div>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-neutral-800">
@@ -44,10 +44,10 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
           </div>
 
           {/* Quick Deficit Segmented selector */}
-          <div className="flex items-center p-0.5 bg-neutral-950 rounded-lg border border-neutral-800 text-xs">
+          <div className="grid grid-cols-3 sm:flex w-full sm:w-auto min-w-0 gap-1 p-1 bg-neutral-950 rounded-lg border border-neutral-800 text-xs">
             <button
               onClick={() => setDeficitKcal(300)}
-              className={`px-2.5 py-1 rounded-md transition-colors whitespace-nowrap ${
+              className={`min-w-0 px-1.5 py-2 sm:px-2.5 sm:py-1 rounded-md transition-colors text-center leading-snug ${
                 deficitKcal === 300
                   ? 'bg-neutral-800 text-white font-medium shadow-xs'
                   : 'text-neutral-400 hover:text-neutral-200'
@@ -57,7 +57,7 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
             </button>
             <button
               onClick={() => setDeficitKcal(500)}
-              className={`px-2.5 py-1 rounded-md transition-colors whitespace-nowrap ${
+              className={`min-w-0 px-1.5 py-2 sm:px-2.5 sm:py-1 rounded-md transition-colors text-center leading-snug ${
                 deficitKcal === 500
                   ? 'bg-neutral-800 text-emerald-300 font-medium shadow-xs'
                   : 'text-neutral-400 hover:text-neutral-200'
@@ -67,7 +67,7 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
             </button>
             <button
               onClick={() => setDeficitKcal(750)}
-              className={`px-2.5 py-1 rounded-md transition-colors whitespace-nowrap ${
+              className={`min-w-0 px-1.5 py-2 sm:px-2.5 sm:py-1 rounded-md transition-colors text-center leading-snug ${
                 deficitKcal === 750
                   ? 'bg-neutral-800 text-amber-300 font-medium shadow-xs'
                   : 'text-neutral-400 hover:text-neutral-200'
