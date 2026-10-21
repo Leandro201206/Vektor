@@ -20,7 +20,7 @@ export const LogEntryModal: React.FC<LogEntryModalProps> = ({
   unit = 'kg',
 }) => {
   const [date, setDate] = useState<string>('');
-  const [weight, setWeight] = useState<number>(80.0);
+  const [weight, setWeight] = useState<string>('80');
   const [waist, setWaist] = useState<string>('');
   const [bodyFat, setBodyFat] = useState<string>('');
   const [notes, setNotes] = useState<string>('');
@@ -30,14 +30,14 @@ export const LogEntryModal: React.FC<LogEntryModalProps> = ({
     if (isOpen) {
       if (initialEntry) {
         setDate(initialEntry.date);
-        setWeight(initialEntry.weight);
+        setWeight(String(initialEntry.weight));
         setWaist(initialEntry.waist ? String(initialEntry.waist) : '');
         setBodyFat(initialEntry.bodyFat ? String(initialEntry.bodyFat) : '');
         setNotes(initialEntry.notes || '');
       } else {
         const todayStr = new Date().toISOString().split('T')[0];
         setDate(todayStr);
-        setWeight(latestWeight || 80.0);
+        setWeight(String(latestWeight || 80.0));
         setWaist('');
         setBodyFat('');
         setNotes('');
@@ -49,7 +49,7 @@ export const LogEntryModal: React.FC<LogEntryModalProps> = ({
   if (!isOpen) return null;
 
   const handleAdjustWeight = (delta: number) => {
-    setWeight(prev => Number((Math.max(20, prev + delta)).toFixed(1)));
+    setWeight(prev => String(Number((Math.max(20, (Number(prev) || 20) + delta)).toFixed(1))));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -58,7 +58,8 @@ export const LogEntryModal: React.FC<LogEntryModalProps> = ({
       setError('Bitte wähle ein Datum aus.');
       return;
     }
-    if (!weight || weight <= 20 || weight >= 400) {
+    const parsedWeight = Number(weight);
+    if (!weight.trim() || !Number.isFinite(parsedWeight) || parsedWeight <= 20 || parsedWeight >= 400) {
       setError('Bitte gib ein realistisches Gewicht ein (20 - 400 kg).');
       return;
     }
@@ -66,7 +67,7 @@ export const LogEntryModal: React.FC<LogEntryModalProps> = ({
     onSave({
       id: initialEntry?.id,
       date,
-      weight: Number(weight.toFixed(1)),
+      weight: Number(parsedWeight.toFixed(1)),
       waist: waist ? Number(parseFloat(waist).toFixed(1)) : undefined,
       bodyFat: bodyFat ? Number(parseFloat(bodyFat).toFixed(1)) : undefined,
       notes: notes.trim() || undefined,
@@ -128,8 +129,9 @@ export const LogEntryModal: React.FC<LogEntryModalProps> = ({
                 step="0.1"
                 min="20"
                 max="350"
-                value={weight || ''}
-                onChange={e => setWeight(parseFloat(e.target.value) || 0)}
+                value={weight}
+                onChange={e => setWeight(e.target.value)}
+                onFocus={e => e.currentTarget.select()}
                 className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2.5 text-xl font-bold font-mono tabular-nums text-white focus:outline-none focus:border-emerald-500"
                 required
               />
