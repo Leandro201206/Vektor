@@ -128,7 +128,7 @@ export const StatsView: React.FC<StatsViewProps> = ({
   const unlockedCount = milestones.filter(m => m.isUnlocked).length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 min-w-0 max-w-full overflow-x-clip">
       {/* Top Banner: Deficit & Insights */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Caloric Deficit Equivalent */}
@@ -217,7 +217,7 @@ export const StatsView: React.FC<StatsViewProps> = ({
             </p>
           </div>
           {extrema && (
-            <div className="flex items-center gap-4 text-xs font-mono">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs font-mono">
               <span className="text-neutral-400">
                 Tiefststand: <strong className="text-emerald-400 font-semibold">{extrema.min.weight.toFixed(1)} {profile.unit}</strong> ({formatDate(extrema.min.date)})
               </span>
@@ -339,14 +339,14 @@ export const StatsView: React.FC<StatsViewProps> = ({
             Zeigt natürliche Wassereinlagerungen (z.B. nach dem Wochenende).
           </p>
 
-          <div className="grid grid-cols-7 gap-1.5 pt-2">
+          <div className="grid grid-cols-7 gap-1 sm:gap-1.5 pt-2 min-w-0">
             {dayOfWeekAverages.map(d => (
               <div
                 key={d.day}
-                className="bg-neutral-950/70 border border-neutral-800 rounded-lg p-2 text-center"
+                className="bg-neutral-950/70 border border-neutral-800 rounded-lg p-1 sm:p-2 min-w-0 text-center"
               >
                 <div className="text-xs font-medium text-neutral-400">{d.day}</div>
-                <div className="mt-2 text-xs font-mono font-semibold text-neutral-100 tabular-nums">
+                <div className="mt-2 text-[10px] sm:text-xs font-mono font-semibold text-neutral-100 tabular-nums">
                   {d.avg ? d.avg.toFixed(1) : '—'}
                 </div>
                 <div className="text-[10px] text-neutral-400 mt-0.5">
