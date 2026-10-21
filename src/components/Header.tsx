@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, Sliders, Sun, Moon } from 'lucide-react';
+import { Plus, Sliders, Sun, Moon, LayoutDashboard, ChartNoAxesCombined, List } from 'lucide-react';
 
 interface HeaderProps {
   activeView: 'dashboard' | 'entries' | 'stats';
@@ -19,8 +19,9 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleDarkMode,
 }) => {
   return (
-    <header className="border-b border-neutral-800 bg-neutral-950/80 backdrop-blur-md sticky top-0 z-40 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-8">
+    <>
+    <header className="border-b border-neutral-800 bg-neutral-950/95 backdrop-blur-md sticky top-0 z-40 transition-colors">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-3 lg:gap-8">
         {/* Zone 1: Brand wordmark */}
         <div className="flex items-center gap-3 shrink-0">
           <button
@@ -33,7 +34,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Zone 2: Nav links */}
-        <nav className="flex items-center gap-6 sm:gap-8 text-xs font-medium overflow-x-auto py-1">
+        <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-xs font-medium py-1">
           <button
             onClick={() => onSelectView('dashboard')}
             className={`whitespace-nowrap pb-1 transition-colors relative ${
@@ -81,7 +82,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center gap-2.5 shrink-0">
           <button
             onClick={onToggleDarkMode}
-            className="p-2 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-900 transition-colors hidden sm:inline-flex"
+            className="p-2 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-900 transition-colors hidden md:inline-flex"
             title={isDarkMode ? 'Heller Modus' : 'Dunkler Modus'}
             aria-label="Theme umschalten"
           >
@@ -102,11 +103,25 @@ export const Header: React.FC<HeaderProps> = ({
             className="px-3.5 py-1.5 text-xs font-semibold text-neutral-950 bg-emerald-400 hover:bg-emerald-300 rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap shadow-xs"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span className="hidden xs:inline">Eintrag erfassen</span>
-            <span className="xs:hidden">Erfassen</span>
+            <span className="hidden sm:inline">Eintrag erfassen</span>
+            <span className="sm:hidden">Eintrag</span>
           </button>
         </div>
       </div>
     </header>
+    <nav aria-label="Mobile Hauptnavigation" className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-neutral-950/95 backdrop-blur-lg border-t border-neutral-800 flex justify-around px-2 pt-2 pb-[calc(env(safe-area-inset-bottom)+8px)] shadow-[0_-10px_30px_rgba(0,0,0,.28)]">
+      {([
+        { view: 'dashboard' as const, label: 'Übersicht', Icon: LayoutDashboard },
+        { view: 'entries' as const, label: 'Einträge', Icon: List },
+        { view: 'stats' as const, label: 'Statistiken', Icon: ChartNoAxesCombined },
+      ]).map(({ view, label, Icon }) => (
+        <button key={view} type="button" aria-current={activeView === view ? 'page' : undefined} onClick={() => { onSelectView(view); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+          className={`flex-1 min-h-12 flex flex-col items-center justify-center gap-1 rounded-xl text-[11px] font-semibold ${activeView === view ? 'text-emerald-300 bg-emerald-500/10' : 'text-neutral-400'}`}>
+          <Icon className="w-5 h-5" strokeWidth={activeView === view ? 2.4 : 1.8}/>
+          <span>{label}</span>
+        </button>
+      ))}
+    </nav>
+    </>
   );
 };
