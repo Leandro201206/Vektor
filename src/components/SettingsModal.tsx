@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UserProfile, WeightEntry } from '../types';
 import { X, Sliders, Download, Upload, RotateCcw, AlertTriangle } from 'lucide-react';
 
@@ -23,17 +23,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onExportData,
   onImportData,
 }) => {
-  const [startWeight, setStartWeight] = useState(profile.startWeight);
-  const [goalWeight, setGoalWeight] = useState(profile.goalWeight);
-  const [height, setHeight] = useState(profile.height);
+  const [startWeight, setStartWeight] = useState(String(profile.startWeight));
+  const [goalWeight, setGoalWeight] = useState(String(profile.goalWeight));
+  const [height, setHeight] = useState(String(profile.height));
   const [startDate, setStartDate] = useState(profile.startDate);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [importError, setImportError] = useState('');
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setStartWeight(String(profile.startWeight));
+    setGoalWeight(String(profile.goalWeight));
+    setHeight(String(profile.height));
+    setStartDate(profile.startDate);
+  }, [isOpen, profile]);
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!startWeight.trim() || !goalWeight.trim() || !height.trim() ||
+      Number(startWeight) <= 20 || Number(goalWeight) <= 20 || Number(height) <= 0) return;
     onUpdateProfile({
       ...profile,
       startWeight: Number(startWeight),
@@ -92,7 +102,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 type="number"
                 step="0.1"
                 value={startWeight}
-                onChange={e => setStartWeight(parseFloat(e.target.value) || 0)}
+                onChange={e => setStartWeight(e.target.value)}
+                onFocus={e => e.currentTarget.select()}
                 className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-100 focus:outline-none focus:border-emerald-500 font-mono"
                 required
               />
@@ -105,7 +116,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 type="number"
                 step="0.1"
                 value={goalWeight}
-                onChange={e => setGoalWeight(parseFloat(e.target.value) || 0)}
+                onChange={e => setGoalWeight(e.target.value)}
+                onFocus={e => e.currentTarget.select()}
                 className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-100 focus:outline-none focus:border-emerald-500 font-mono"
                 required
               />
@@ -120,7 +132,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <input
                 type="number"
                 value={height}
-                onChange={e => setHeight(parseInt(e.target.value, 10) || 0)}
+                onChange={e => setHeight(e.target.value)}
+                onFocus={e => e.currentTarget.select()}
                 className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-100 focus:outline-none focus:border-emerald-500 font-mono"
                 required
               />
