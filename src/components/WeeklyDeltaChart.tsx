@@ -62,7 +62,7 @@ export const WeeklyDeltaChart: React.FC<WeeklyDeltaChartProps> = ({
         </div>
       </div>
 
-      <div className="mt-5 grid grid-cols-4 sm:grid-cols-8 gap-2 items-end h-32 pt-4 pb-2 border-b border-neutral-800">
+      <div className="mt-5 grid grid-cols-8 gap-1 sm:gap-2 items-end h-32 pt-4 pb-2 border-b border-neutral-800">
         {weeklyChanges.map((w, idx) => {
           const isLoss = w.delta <= 0;
           const barHeightPct = Math.min(100, Math.max(15, (Math.abs(w.delta) / maxAbs) * 100));
@@ -98,7 +98,7 @@ export const WeeklyDeltaChart: React.FC<WeeklyDeltaChartProps> = ({
       </div>
 
       {/* Week X-axis Labels */}
-      <div className="grid grid-cols-4 sm:grid-cols-8 gap-2 mt-2">
+      <div className="grid grid-cols-8 gap-1 sm:gap-2 mt-2">
         {weeklyChanges.map((w, idx) => (
           <div key={idx} className="text-center font-mono text-[10px] text-neutral-400">
             {w.weekLabel}
