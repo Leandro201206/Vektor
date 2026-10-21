@@ -14,7 +14,7 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
 }) => {
   const [deficitKcal, setDeficitKcal] = useState<number>(500);
   const [activityMultiplier, setActivityMultiplier] = useState<number>(1.375); // lightly active
-  const [age, setAge] = useState<number>(30);
+  const [age, setAge] = useState<string>('30');
 
   const plan = useMemo(() => {
     return calculateNutritionRecommendations(
@@ -22,7 +22,7 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
       profile.height,
       deficitKcal,
       activityMultiplier,
-      age
+      Number(age) || 30
     );
   }, [currentWeight, profile.height, deficitKcal, activityMultiplier, age]);
 
@@ -102,7 +102,9 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
                 min="16"
                 max="90"
                 value={age}
-                onChange={e => setAge(parseInt(e.target.value, 10) || 30)}
+                onChange={e => setAge(e.target.value)}
+                onFocus={e => e.currentTarget.select()}
+                onBlur={() => { if (Number(age) < 16 || Number(age) > 90) setAge('30'); }}
                 className="w-24 bg-neutral-900 border border-neutral-700 rounded px-2.5 py-1 font-mono text-neutral-200 focus:outline-none focus:border-emerald-500"
               />
               <span className="text-neutral-400">Jahre</span>
